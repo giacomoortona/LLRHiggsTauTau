@@ -147,6 +147,7 @@ for dtset in dtsetToLaunch:
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/gortona/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
+    command += " Data.useParent = True"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
