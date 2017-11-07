@@ -2,6 +2,13 @@
 # lines CONTAINING a '#' are interpreted as comments
 # blocks of datasets to be processed (toggeld on/off in the python script) are introduced by a ===
 
+=== HGCALTDR ===
+/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v3/MINIAODSIM
+/VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
+/VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
+/VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
+
+
 === BKGPU20 ===
 /GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v1/MINIAODSIM
 /WJetsToLNu_13TeV-madgraph-pythia8-tauola/Phys14DR-PU20bx25_PHYS14_25_V1-v1/MINIAODSIM

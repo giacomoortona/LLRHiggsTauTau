@@ -18,7 +18,7 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 20000 #number of events per jobs # 18K FOR SINGLE ELE, 10k for others
 config.Data.totalUnits = -1 #number of event
-config.Data.outLFNDirBase = '/store/user/lcadamur/HHNtuples/DefaultOutLFNDirBase'
+config.Data.outLFNDirBase = '/store/user/gortona/HHNtuples/DefaultOutLFNDirBase'
 config.Data.publication = True
 config.Data.outputDatasetTag = 'DefaultPublishName'
 

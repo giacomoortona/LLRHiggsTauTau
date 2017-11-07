@@ -9,156 +9,9 @@ import re
 #### Parameters to be changed for each production
 
 
-#PROCESS = ["HHBACKGROUNDS"]
-#tag = "llrNt_NoSVFit_bkg_27Ago2015"
-#datasetsFile = "datasets.txt"
 
-#PROCESS = ["2015RUNBDATA", "2015RUNCDATA"] # 50 ns
-#tag = "Data50ns_SVFit_6Ott2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015RUNCDATA", "2015RUNDDATA"] # 25 ns
-#tag = "Data25ns_SVFit_6Ott2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATA25NSRESUBMISSION"]
-#tag = "Data25ns_SVFit_6Ott2015_resub"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATARUND27OTT"]
-#tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATAPROMPTRECOONLY"]
-#tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MINIAODV2"]
-#tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
-#datasetsFile = "datasets.txt"
-
-# PROCESS = ["RESUBMINIAODV2"]
-# tag = "MC_NoSVFit_MiniAODV2_13Nov2015_DYresub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFIT"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["2015DATARUND27OTT"]
-# tag = "Data_SVFit_MiniAODV2_22Nov2015_SVFix"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFITDY"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015_DYResub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFITPLUS"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015_MoreSamples_SVFix"
-# datasetsFile = "datasets.txt"
-
-#PROCESS = ["MINIV2SVFITESSENTIAL"]
-#tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
-#datasetsFile = "datasets.txt"
-
-# PROCESS = ["SILVERJSONMC"]
-# tag = "MC_SilverJson_SVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["SILVERJSONDATA"]
-# tag = "Data_SilverJson_SVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DYNLO"]
-# tag = "DY_NLO_noSVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC76X"]
-# tag = "MC_76X_15Feb2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA76XZZ"]
-# tag = "Data_76X_ZZTolljj_29Mar2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC76XZZLUCA"]
-# tag = "MC_76X_ZZTolljj_29Mar2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_21Giu"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_21Giu_resubSingleEle"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MCDY80XRESUB"]
-# tag = "MC_2016_24Giu_resubDY_VeryLong"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC80XMOREV2"]
-# tag = "MC_2016_27Giu_WAndRadionSub2"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_22giuJSON_diff_16giuJSON"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_22giuJSON_diff_16giuJSON_Tauresub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC80XSUMMER16LUCA"]
-# tag = "MC_Summer16"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA80XRERECOSETLUCARESUB"]
-# tag = "Data_23SepReReco_8Feb2017_res2"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA80XRERECOSETLUCARESUBMORE"]
-# tag = "Data_23SepReReco_8Feb2017_res4"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBH"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runH"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBBG"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runBG"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBBGRESUB"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runBG_res"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBHRESUB"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runH_res"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["SUSYSAMPLE"]
-# tag = "MCSUSY_2Apr2017"
-# datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC80XGRAVITON"]
-#tag = "MC_gravitons_24Apr2017"
-#datasetsFile = "datasets.txt"
-
-PROCESS = ["MC80XRSGRAVITON"]
-tag = "MC_gravitonsRS_29Apr2017"
+PROCESS = ["HGCALTDR"]
+tag = "HGCAL_TDR_signal_2017_11_07"
 datasetsFile = "datasets.txt"
 
 isMC = True
@@ -187,7 +40,7 @@ isMC = True
 # lumiMaskFileName = "22giuJSON_diff_16giuJSON.txt"
 
 ## 8 lug JSON MINUS 22 giu JSON
-# compareJSON.py --sub /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275783_13TeV_PromptReco_Collisions16_JSON.txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt 8lugJSON_diff_22giuJSON.txt
+# compareJSON --sub /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275783_13TeV_PromptReco_Collisions16_JSON.txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt 8lugJSON_diff_22giuJSON.txt
 # lumiMaskFileName = "15lug_NoL1TJSON_diff_8lugJSON.txt"
 # lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
@@ -252,8 +105,9 @@ with open(datasetsFile) as fIn:
         else:
             if currSection in PROCESS:
                 dtsetToLaunch.append(line)
-
+        #print currSection
 # CREATE CRAB JOBS
+print dtsetToLaunch
 os.system ("voms-proxy-init -voms cms")
 
 for name in PROCESS: crabJobsFolder + "_" + name
@@ -291,7 +145,7 @@ for dtset in dtsetToLaunch:
     command += " General.requestName=%s" % (shortName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    command += " Data.outLFNDirBase=/store/user/gortona/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched

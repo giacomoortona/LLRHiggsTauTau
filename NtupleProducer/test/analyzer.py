@@ -88,7 +88,7 @@ process.source = cms.Source("PoolSource",
 # process.source.skipEvents = cms.untracked.uint32(968)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file

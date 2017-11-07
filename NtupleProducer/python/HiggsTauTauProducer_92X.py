@@ -49,7 +49,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6' # FIXME !!!!!!!!
+    process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v2'
+    #'80X_mcRun2_asymptotic_2016_TrancheIV_v6' # FIXME !!!!!!!!
 else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP            # FIXME !!!!!!!!
     process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G                # FIXME !!!!!!!!
@@ -553,15 +554,15 @@ else : process.geninfo = cms.Sequence()
 ### ----------------------------------------------------------------------
 ### Search for FSR candidates
 ### ----------------------------------------------------------------------
-process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
-process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
-    muonSrc = cms.InputTag("softMuons"),
-    electronSrc = cms.InputTag("cleanSoftElectrons"),
-    photonSrc = cms.InputTag("boostedFsrPhotons"),#cms.InputTag("cmgPhotonSel"),
-    matchFSR = cms.bool(True)
-    )
+#process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
+#process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
+#    muonSrc = cms.InputTag("softMuons"),
+#    electronSrc = cms.InputTag("cleanSoftElectrons"),
+#    photonSrc = cms.InputTag("boostedFsrPhotons"),#cms.InputTag("cmgPhotonSel"),
+#    matchFSR = cms.bool(True)
+#    )
 
-process.fsrSequence = cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
+process.fsrSequence = cms.Sequence() #cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
 muString = "appendPhotons:muons"
 eleString = "appendPhotons:electrons"
 if not APPLYFSR : 
