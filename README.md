@@ -251,10 +251,8 @@ cmsenv
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
-git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau
-git checkout master
-git remote add my-LLR https://github.com/francescobrivio/LLRHiggsTauTau.git
+git clone https://github.com/giacomoortona/LLRHiggsTauTau
+cd LLRHiggsTauTau/NtupleProducer
 git checkout 92X
 cd -
 
@@ -269,16 +267,16 @@ git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
 
 # FSR corrections
-git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
-cd UFHZZAnalysisRun2
-git checkout master FSRPhotons
+#git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+#cd UFHZZAnalysisRun2
+#git checkout master FSRPhotons
 # need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
 #              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
 # replace 'std::auto_ptr' with 'std::unique_ptr' 
 # search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
 
 # SVfit
-git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
+git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 
