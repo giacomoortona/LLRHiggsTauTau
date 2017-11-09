@@ -84,7 +84,7 @@ process.source = cms.Source("PoolSource",
     # '/store/mc/RunIISpring16MiniAODv1/GluGluToBulkGravitonToHHTo2B2Tau_M-400_narrow_13TeV-madgraph/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3_ext1-v1/30000/06E22BEA-9F10-E611-9862-1CB72C0A3A5D.root', #80X MC
     # '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/12184969-3DB8-E511-879B-001E67504A65.root', #76X MC
     ),
-    #secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v2/30000/EE9F06A8-D2BB-E711-84DF-0090FAA57A60.root')
+    secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v2/30000/EE9F06A8-D2BB-E711-84DF-0090FAA57A60.root')
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)
@@ -103,6 +103,12 @@ process.maxEvents.input = -1
 ##
 
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+#process.out = cms.OutputModule("PoolOutputModule",
+#    outputCommands = cms.untracked.vstring('keep *_*_*_*',
+#                                           'drop patElectrons_slimmedElectrons_*_*',
+#                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
+#    fileName = cms.untracked.string('HTauTauAnalysis.root')
+#)
 
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",

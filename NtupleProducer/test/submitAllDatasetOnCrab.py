@@ -11,7 +11,7 @@ import re
 
 
 PROCESS = ["HGCALTDR"]
-tag = "HGCAL_TDR_signal_2017_11_09_v4_noele"
+tag = "HGCAL_TDR_signal_2017_11_09_v5_muons"
 datasetsFile = "datasets.txt"
 
 isMC = True

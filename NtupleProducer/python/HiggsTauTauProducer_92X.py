@@ -67,11 +67,16 @@ METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be
 ### ----------------------------------------------------------------------
 ### Standard stuff
 ### ----------------------------------------------------------------------
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+#process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.Geometry.GeometryRecoDB_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
 #process.load("RecoMET.METFilters.python.badGlobalMuonTaggersMiniAOD_cff")
 #process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.options = cms.untracked.PSet(
@@ -136,8 +141,39 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 
 #Re-Reco2016 fix from G. Petrucciani
 #process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
+
+# run Puppi 
+process.load('CommonTools.PileupAlgos.Puppi_cff')
+process.particleFlowNoLep = cms.EDFilter("PdgIdCandViewSelector",
+                                    src = cms.InputTag("particleFlow"), 
+                                    pdgId = cms.vint32( 1,2,22,111,130,310,2112,211,-211,321,-321,999211,2212,-2212 )
+                                    )
+process.puppiNoLep = process.puppi.clone(candName = cms.InputTag('particleFlowNoLep'))
+
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi")
+process.load("PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi")
+process.load("PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi")
+
+# producer
+process.muonfilter = cms.EDProducer("PatMuonFilter")
+process.load("PhaseTwoAnalysis.Muons."+"PatMuonFilter"+"_cfi")
+#process.newMuons = cms.Sequence(process.primaryVertexAssociation
+#                         +process.puppi
+#                         +process.particleFlowNoLep+process.puppiNoLep
+#                         +process.offlineSlimmedPrimaryVertices+process.packedPFCandidates
+#                         +process.muonIsolationPUPPI+process.muonIsolationPUPPINoLep * process.muonfilter)
+##process.out = cms.OutputModule("PoolOutputModule",
+##    outputCommands = cms.untracked.vstring('keep *_*_*_*',
+##                                           'drop patMuons_slimmedMuons_*_*',
+##                                           'drop recoMuons_muons_*_*'),
+##    fileName = cms.untracked.string(options.outFilename)
+##)
+  
+#process.p = cms.Path(process.muonfilter)
+
 process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
-    muons = cms.InputTag("slimmedMuons"),
+    muons = cms.InputTag("muonfilter"),
     vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
     muonPtCut = cms.double(20),
     selectClones = cms.bool(False),
@@ -149,7 +185,7 @@ process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
 )
 
 process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
-    input = cms.InputTag("slimmedMuons"),
+    input = cms.InputTag("muonfilter"),
     toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
     toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
 )
@@ -160,7 +196,7 @@ process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 # )
 
 # process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
-process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
+process.noBadGlobalMuons = cms.Sequence(process.muonfilter + process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
 #process.softLeptons = cms.EDProducer("CandViewMerger",
 #    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
@@ -197,6 +233,7 @@ process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
 #                                    resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
 #                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
 #                                    )
+
 
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
@@ -434,39 +471,39 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 ##            debug = cms.bool(False),
 ##        ),
 ##)
-# run Puppi 
-###QUIELENEW### process.load('CommonTools/PileupAlgos/Puppi_cff')
-###QUIELENEW### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
-###QUIELENEW### process.load('CommonTools/PileupAlgos/softKiller_cfi')
-###QUIELENEW### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
-###QUIELENEW### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
-###QUIELENEW### makePuppies(process)
-###QUIELENEW### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
-###QUIELENEW### 
-###QUIELENEW### # PF cluster producer for HFCal ID
-###QUIELENEW### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-###QUIELENEW### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
-###QUIELENEW### 
-###QUIELENEW### # jurassic track isolation
-###QUIELENEW### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
-###QUIELENEW### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
-###QUIELENEW### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
-###QUIELENEW### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
-###QUIELENEW### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
-###QUIELENEW### 
-###QUIELENEW### # producer
-###QUIELENEW### process.electronfilter = cms.EDProducer("RecoElectronFilter")
-###QUIELENEW### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
-###QUIELENEW### process.electronfilter.pfCandsNoLep = "puppiNoLep"
-###QUIELENEW### 
-###QUIELENEW### #process.out = cms.OutputModule("PoolOutputModule",
-###QUIELENEW### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
-###QUIELENEW### #                                           'drop patElectrons_slimmedElectrons_*_*',
-###QUIELENEW### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
-###QUIELENEW### #    fileName = cms.untracked.string(options.outFilename)
-###QUIELENEW### #)
-###QUIELENEW###   
-###QUIELENEW### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
+###QUIELE### # run Puppi 
+###QUIELE### process.load('CommonTools/PileupAlgos/Puppi_cff')
+###QUIELE### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
+###QUIELE### process.load('CommonTools/PileupAlgos/softKiller_cfi')
+###QUIELE### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
+###QUIELE### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
+###QUIELE### makePuppies(process)
+###QUIELE### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
+###QUIELE### 
+###QUIELE### # PF cluster producer for HFCal ID
+###QUIELE### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+###QUIELE### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
+###QUIELE### 
+###QUIELE### # jurassic track isolation
+###QUIELE### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
+###QUIELE### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
+###QUIELE### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
+###QUIELE### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
+###QUIELE### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
+###QUIELE### 
+###QUIELE### # producer
+###QUIELE### process.electronfilter = cms.EDProducer("RecoElectronFilter")
+###QUIELE### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
+###QUIELE### process.electronfilter.pfCandsNoLep = "puppiNoLep"
+###QUIELE### 
+###QUIELE### #process.out = cms.OutputModule("PoolOutputModule",
+###QUIELE### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
+###QUIELE### #                                           'drop patElectrons_slimmedElectrons_*_*',
+###QUIELE### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
+###QUIELE### #    fileName = cms.untracked.string(options.outFilename)
+###QUIELE### #)
+###QUIELE###   
+###QUIELE### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
 
 ##
 ## Taus
