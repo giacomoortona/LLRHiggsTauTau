@@ -117,7 +117,6 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
 }
 
 float LeptonIsoHelper::combRelIsoPF(const pat::Tau& l) {
-
   float PFChargedHadIso   = l.tauID ("chargedIsoPtSum");
   float PFNeutralHadIso   = l.tauID ("neutralIsoPtSum");
   float PFPhotonIso       = 0;//l.photonIso();
@@ -180,7 +179,6 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
 
 
 int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet jet){
-
   int jetNDauCharged = 0;
 
   for (unsigned int i = 0, n = jet.numberOfSourceCandidatePtrs(); i < n; ++i) {
@@ -189,17 +187,19 @@ int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet 
     float dR = deltaR(jet,dau_jet);
     
     bool isgoodtrk = false;
-    const reco::Track trk = dau_jet.pseudoTrack();
-    const math::XYZPoint vtx_position = cand->vertex();
-    
-    if(trk.pt()>1 &&
+    if (!dau_jet.hasTrackDetails()) isgoodtrk = true;
+    else{
+      const reco::Track trk = dau_jet.pseudoTrack();
+      const math::XYZPoint vtx_position = cand->vertex();
+
+      if(trk.pt()>1 &&
        trk.hitPattern().numberOfValidHits()>=8 &&
        trk.hitPattern().numberOfValidPixelHits()>=2 &&
        trk.normalizedChi2()<5 &&
        std::fabs(trk.dxy(vtx_position))<0.2 &&
        std::fabs(trk.dz(vtx_position))<17
        ) isgoodtrk = true;
-    
+    }
     
     if( dR<=0.4 && dau_jet.charge()!=0 && dau_jet.fromPV()>1 && isgoodtrk)
       jetNDauCharged++;
@@ -214,7 +214,6 @@ int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet 
 
 
 void LeptonIsoHelper::PFIso_particles(const edm::View<pat::PackedCandidate>* pfCands, std::vector<const pat::PackedCandidate *> & pfCands_charged, std::vector<const pat::PackedCandidate *> & pfCands_neutral){
-
   pfCands_charged.clear(); pfCands_neutral.clear();
 
   for(edm::View<pat::PackedCandidate>::const_iterator pfCandi = pfCands->begin(); pfCandi!=pfCands->end(); ++pfCandi){
@@ -244,7 +243,6 @@ void LeptonIsoHelper::PFIso_particles(const edm::View<pat::PackedCandidate>* pfC
 
 
 float LeptonIsoHelper::isoSumRaw(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_Iso, float dR, float innerR, float threshold, SelfVetoPolicy::SelfVetoPolicy selfVeto, int pdgId){
-
 
   std::vector<const reco::Candidate *> vetos;
    for( unsigned int i=0,n=cand->numberOfSourceCandidatePtrs();i<n;++i )
@@ -291,7 +289,6 @@ float LeptonIsoHelper::isoSumRaw(const reco::Candidate* cand, const std::vector<
 
 
 float LeptonIsoHelper::PfIsoCharged(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, float miniIsoR){
-
   float result = -1.;
 
   if(cand->isElectron()){
@@ -319,7 +316,6 @@ float LeptonIsoHelper::PfIsoCharged(const reco::Candidate* cand, const std::vect
 
 float LeptonIsoHelper::PfIsoNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float miniIsoR)
 {
-
   float result = -1.;
 
   if(cand->isElectron()){
@@ -346,7 +342,6 @@ float LeptonIsoHelper::PfIsoNeutral(const reco::Candidate* cand, const std::vect
 
 
 std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float rho){
-
 
   float miniIsoR = 10.0/std::min(std::max(float(cand->pt()),float(50.)),float(200.));
   float EffArea = 0.;
@@ -395,7 +390,6 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
 
 float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet, string JECname)
 {
-
   float PtRel = 0;
 
   if(jet.numberOfDaughters()>1){
@@ -422,7 +416,6 @@ float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet
 
 float LeptonIsoHelper::jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet, string JECname)
 {
-
   float PtRatio = 1.;
 
   if(jet.numberOfDaughters()>1){
