@@ -417,23 +417,56 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #####)
 
 #Electrons Phase2
-process.cleanSoftElectrons = cms.EDProducer('RecoElectronFilter',
-        electrons    = cms.InputTag("ecalDrivenGsfElectrons"),
-        beamspot     = cms.InputTag("offlineBeamSpot"),
-        conversions  = cms.InputTag("particleFlowEGamma"),
-        trackIsoValueMap = cms.InputTag("electronTrackIsolationLcone"),
-        pfCandsNoLep = cms.InputTag("particleFlow"),
-        genParts     = cms.InputTag("genParticles"),
-        vertices     = cms.InputTag("offlinePrimaryVertices"),
-        HGCalIDToolConfig = cms.PSet(
-            HGCBHInput = cms.InputTag("HGCalRecHit","HGCHEBRecHits"),
-            HGCEEInput = cms.InputTag("HGCalRecHit","HGCEERecHits"),
-            HGCFHInput = cms.InputTag("HGCalRecHit","HGCHEFRecHits"),
-            HGCPFRecHits = cms.InputTag("particleFlowRecHitHGC::ElectronFilter"),
-            withPileup = cms.bool(True),
-            debug = cms.bool(False),
-        ),
-)
+##process.electrons = cms.EDProducer('RecoElectronFilter',
+##        electrons    = cms.InputTag("ecalDrivenGsfElectrons"),
+##        beamspot     = cms.InputTag("offlineBeamSpot"),
+##        conversions  = cms.InputTag("particleFlowEGamma"),
+##        trackIsoValueMap = cms.InputTag("electronTrackIsolationLcone"),
+##        pfCandsNoLep = cms.InputTag("particleFlow"),
+##        genParts     = cms.InputTag("genParticles"),
+##        vertices     = cms.InputTag("offlinePrimaryVertices"),
+##        HGCalIDToolConfig = cms.PSet(
+##            HGCBHInput = cms.InputTag("HGCalRecHit","HGCHEBRecHits"),
+##            HGCEEInput = cms.InputTag("HGCalRecHit","HGCEERecHits"),
+##            HGCFHInput = cms.InputTag("HGCalRecHit","HGCHEFRecHits"),
+##            HGCPFRecHits = cms.InputTag("particleFlowRecHitHGC::ElectronFilter"),
+##            withPileup = cms.bool(True),
+##            debug = cms.bool(False),
+##        ),
+##)
+# run Puppi 
+###QUIELENEW### process.load('CommonTools/PileupAlgos/Puppi_cff')
+###QUIELENEW### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
+###QUIELENEW### process.load('CommonTools/PileupAlgos/softKiller_cfi')
+###QUIELENEW### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
+###QUIELENEW### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
+###QUIELENEW### makePuppies(process)
+###QUIELENEW### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
+###QUIELENEW### 
+###QUIELENEW### # PF cluster producer for HFCal ID
+###QUIELENEW### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+###QUIELENEW### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
+###QUIELENEW### 
+###QUIELENEW### # jurassic track isolation
+###QUIELENEW### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
+###QUIELENEW### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
+###QUIELENEW### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
+###QUIELENEW### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
+###QUIELENEW### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
+###QUIELENEW### 
+###QUIELENEW### # producer
+###QUIELENEW### process.electronfilter = cms.EDProducer("RecoElectronFilter")
+###QUIELENEW### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
+###QUIELENEW### process.electronfilter.pfCandsNoLep = "puppiNoLep"
+###QUIELENEW### 
+###QUIELENEW### #process.out = cms.OutputModule("PoolOutputModule",
+###QUIELENEW### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
+###QUIELENEW### #                                           'drop patElectrons_slimmedElectrons_*_*',
+###QUIELENEW### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
+###QUIELENEW### #    fileName = cms.untracked.string(options.outFilename)
+###QUIELENEW### #)
+###QUIELENEW###   
+###QUIELENEW### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
 
 ##
 ## Taus
@@ -592,7 +625,8 @@ if not APPLYFSR :
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+    #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
 )
 
 
@@ -885,7 +919,7 @@ process.Candidates = cms.Sequence(
     #process.hltFilter         + 
     process.nEventsPassTrigger+
     process.muons             +
-    process.electrons         + process.cleanSoftElectrons +
+    #process.electrons         +# process.cleanSoftElectrons +
     process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +

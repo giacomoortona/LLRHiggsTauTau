@@ -11,7 +11,7 @@ import re
 
 
 PROCESS = ["HGCALTDR"]
-tag = "HGCAL_TDR_signal_2017_11_07"
+tag = "HGCAL_TDR_signal_2017_11_09_v4_noele"
 datasetsFile = "datasets.txt"
 
 isMC = True
@@ -147,11 +147,13 @@ for dtset in dtsetToLaunch:
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/gortona/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
-    command += " Data.useParent = True"
+    #command += " Data.useParent=True"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
+    #command += " JobType.inputFiles = ['file:/afs/cern.ch/user/g/gortona/work/HGCAL/CMSSW_9_3_2/src/PhaseTwoAnalysis/Electrons/TMVAClassification_BDT.weights.xml'] "
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
-    if (FastJobs)         : command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
+    #if (FastJobs)         : command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
+    command += " Data.unitsPerJob=1500" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
     if VeryLong           : command += " JobType.maxJobRuntimeMin=2500" # 32 hours, default is 22 hours -- can do up to 2800 hrs
     if not isMC           : command += " Data.lumiMask=%s" % lumiMaskFileName
     print command ,  "\n"

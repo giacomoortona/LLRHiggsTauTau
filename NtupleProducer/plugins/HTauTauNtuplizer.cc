@@ -200,7 +200,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   triggerhelper* myTriggerHelper;
 
   PUReweight reweight;
-  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+  //edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<edm::TriggerResults> metFilterBits_;
@@ -632,7 +632,7 @@ const int HTauTauNtuplizer::ntauIds; // definition of static member
 
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
-  triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
+  //triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
   l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
   triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
   metFilterBits_       (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("metFilters"))),
@@ -1871,13 +1871,13 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
-    float vtxPx = ijet->userFloat ("vtxPx");
-    float vtxPy = ijet->userFloat ("vtxPy");
+    float vtxPx = 0; //ijet->userFloat ("vtxPx");
+    float vtxPy = 0; //ijet->userFloat ("vtxPy");
     _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
-    _jets_vtxMass.push_back(ijet->userFloat("vtxMass"));
-    _jets_vtx3dL. push_back(ijet->userFloat("vtx3DVal"));
-    _jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));
-    _jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));
+    _jets_vtxMass.push_back(/*ijet->userFloat("vtxMass")*/0.0);
+    _jets_vtx3dL. push_back(/*ijet->userFloat("vtx3DVal")*/0.0);
+    _jets_vtxNtrk.push_back(/*ijet->userFloat("vtxNtracks")*/0.0);
+    _jets_vtx3deL.push_back(/*ijet->userFloat("vtx3DSig")*/0.0);
 
     _bdiscr.push_back(ijet->bDiscriminator("pfJetProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
@@ -2101,7 +2101,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
 
-  event.getByToken(triggerObjects_, triggerObjects);
+  //event.getByToken(triggerObjects_, triggerObjects);
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
   
@@ -2486,129 +2486,129 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_neutral_e.push_back(neutralP4.T());
 
     //TRIGGER MATCHING
-    Long64_t LFtriggerbit=0,L3triggerbit=0,filterFired=0;
-    Long64_t trgMatched = 0;
-    Long64_t triggertypeIsGood = 0;
-    float hltpt=0;
+    Long64_t LFtriggerbit=1,L3triggerbit=1,filterFired=1;
+    Long64_t trgMatched = 1;
+    Long64_t triggertypeIsGood = 1;
+    float hltpt=1;
     
     // list of indexes of all TO standalone that are matched to this specific daughter and pass HLT filter(s)
     // use as: toStandaloneMatched.at(idxHLT).at(idx tostadalone)
     vector<vector<int>> toStandaloneMatched (myTriggerHelper->GetNTriggers(), vector<int>(0));
 
     // for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
-    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
-    {
-      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
-      
-      //check if the trigger object matches cand
-      bool triggerType=false;
-
-      if(deltaR2(obj,*cand)<0.25){
-      
-	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
-
-        if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
-        if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
-        if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
-        //check fired paths
-        obj.unpackPathNames(names);
-        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
-        std::vector<std::string> pathNamesLast = obj.pathNames(true);
-
-        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
-
-          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-          if (triggerbit < 0) continue ; // not a path I want to save
-          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
-          bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-
-          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
-          bool isfilterGood = true;
-          int IDsearch = 0;
-          if (type==ParticleType::ELECTRON) IDsearch = 11;
-          else if (type==ParticleType::MUON) IDsearch = 13;
-          else if(type==ParticleType::TAU) IDsearch = 15;
-          int legPosition = trgmap.GetLegFromID(IDsearch);
-
-          if (legPosition == 1)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
-            {
-              string label = trgmap.Getfilter(true,ifilt);
-              if (label.empty()) continue;
-              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
-            }
-          }
-          else if (legPosition == 2)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
-            {
-              string label = trgmap.Getfilter(false,ifilt);
-              if (label.empty()) continue;
-              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
-            }
-          }
-          else isfilterGood = false;
-
-          //_isFilterFiredLast;
-          if(isfilterGood)filterFired |= long(1) <<triggerbit;
-          if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
-          if(isLF)LFtriggerbit |= long(1) <<triggerbit;
-          if(isL3)L3triggerbit |= long(1) <<triggerbit;
-        } // loop on all trigger paths
-
-        // -------------- now do matching "filter-wise" to do x-check
-        // trigger matching checking labels
-        const std::vector<std::string>& vLabels = obj.filterLabels();
-        for (int triggerbit = 0; triggerbit < myTriggerHelper->GetNTriggers(); ++triggerbit)
-        {
-          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(triggerbit);
-          bool istrgMatched = true;
-          int IDsearch = 0;
-          if (type==ParticleType::ELECTRON)  IDsearch = 11;
-          else if (type==ParticleType::MUON) IDsearch = 13;
-          else if(type==ParticleType::TAU)   IDsearch = 15;
-          int legPosition = trgmap.GetLegFromID(IDsearch);
-
-          // debug
-          // cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << endl;
-          // cout << "all this object labels: ID " << IDsearch << " --> leg position : " << legPosition << endl;
-          // cout << "Nfilters . 1 : " << trgmap.GetNfiltersleg1() << " || 2 : " << trgmap.GetNfiltersleg2() << endl;
-          // for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "   -- " << vLabels.at(ll) << endl; 
-
-          if (legPosition == 1)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
-            {
-              string label = trgmap.Getfilter(true,ifilt);
-              // cout << " @@ leg 1 looking for " << label << endl;
-              if (label.empty()) continue;
-              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
-            }
-          }
-          else if (legPosition == 2)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
-            {
-              string label = trgmap.Getfilter(false,ifilt);
-              // cout << " @@ leg 2 looking for " << label << endl;
-              if (label.empty()) continue;
-              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
-            }
-          }
-          else istrgMatched = false;
-          // FIXME: should I check type? --> no, multiple filters should be enough
-          if(istrgMatched)
-          {
-            trgMatched |= (long(1) <<triggerbit);
-            toStandaloneMatched.at(triggerbit).push_back(idxto);
-          }
-          // cout << "istrgMatched ? " << istrgMatched << endl;
-
-        } // loop on triggerbit from 0 to GetNTriggers()
-
-      } // if dR < 0.25
-    } // loop on all trigger candidates
+//    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
+//    {
+//      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+//      
+//      //check if the trigger object matches cand
+//      bool triggerType=false;
+//
+//      if(deltaR2(obj,*cand)<0.25){
+//
+//	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
+//
+//        if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
+//        if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
+//        if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
+//        //check fired paths
+//        obj.unpackPathNames(names);
+//        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+//        std::vector<std::string> pathNamesLast = obj.pathNames(true);
+//
+//        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+//
+//          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+//          if (triggerbit < 0) continue ; // not a path I want to save
+//          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
+//          bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
+//
+//          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+//          bool isfilterGood = true;
+//          int IDsearch = 0;
+//          if (type==ParticleType::ELECTRON) IDsearch = 11;
+//          else if (type==ParticleType::MUON) IDsearch = 13;
+//          else if(type==ParticleType::TAU) IDsearch = 15;
+//          int legPosition = trgmap.GetLegFromID(IDsearch);
+//
+//          if (legPosition == 1)
+//          {
+//            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
+//            {
+//              string label = trgmap.Getfilter(true,ifilt);
+//              if (label.empty()) continue;
+//              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+//            }
+//          }
+//          else if (legPosition == 2)
+//          {
+//            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
+//            {
+//              string label = trgmap.Getfilter(false,ifilt);
+//              if (label.empty()) continue;
+//              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+//            }
+//          }
+//          else isfilterGood = false;
+//
+//          //_isFilterFiredLast;
+//          if(isfilterGood)filterFired |= long(1) <<triggerbit;
+//          if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
+//          if(isLF)LFtriggerbit |= long(1) <<triggerbit;
+//          if(isL3)L3triggerbit |= long(1) <<triggerbit;
+//        } // loop on all trigger paths
+//
+//        // -------------- now do matching "filter-wise" to do x-check
+//        // trigger matching checking labels
+//        const std::vector<std::string>& vLabels = obj.filterLabels();
+//        for (int triggerbit = 0; triggerbit < myTriggerHelper->GetNTriggers(); ++triggerbit)
+//        {
+//          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(triggerbit);
+//          bool istrgMatched = true;
+//          int IDsearch = 0;
+//          if (type==ParticleType::ELECTRON)  IDsearch = 11;
+//          else if (type==ParticleType::MUON) IDsearch = 13;
+//          else if(type==ParticleType::TAU)   IDsearch = 15;
+//          int legPosition = trgmap.GetLegFromID(IDsearch);
+//
+//          // debug
+//          // cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << endl;
+//          // cout << "all this object labels: ID " << IDsearch << " --> leg position : " << legPosition << endl;
+//          // cout << "Nfilters . 1 : " << trgmap.GetNfiltersleg1() << " || 2 : " << trgmap.GetNfiltersleg2() << endl;
+//          // for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "   -- " << vLabels.at(ll) << endl; 
+//
+//          if (legPosition == 1)
+//          {
+//            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
+//            {
+//              string label = trgmap.Getfilter(true,ifilt);
+//              // cout << " @@ leg 1 looking for " << label << endl;
+//              if (label.empty()) continue;
+//              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
+//            }
+//          }
+//          else if (legPosition == 2)
+//          {
+//            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
+//            {
+//              string label = trgmap.Getfilter(false,ifilt);
+//              // cout << " @@ leg 2 looking for " << label << endl;
+//              if (label.empty()) continue;
+//              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
+//            }
+//          }
+//          else istrgMatched = false;
+//          // FIXME: should I check type? --> no, multiple filters should be enough
+//          if(istrgMatched)
+//          {
+//            trgMatched |= (long(1) <<triggerbit);
+//            toStandaloneMatched.at(triggerbit).push_back(idxto);
+//          }
+//          // cout << "istrgMatched ? " << istrgMatched << endl;
+//
+//        } // loop on triggerbit from 0 to GetNTriggers()
+//
+//      } // if dR < 0.25
+//    } // loop on all trigger candidates
     _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);
