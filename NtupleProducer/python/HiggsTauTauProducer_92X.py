@@ -31,8 +31,8 @@ try: USE_NOHFMET
 except NameError:
     USE_NOHFMET=False
 
-PFMetName = "slimmedMETs"
-if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
+PFMetName = "slimmedMETsPuppi" #"slimmedMETs"
+if USE_NOHFMET: PFMetName = "slimmedMETsPuppi" #"slimmedMETsNoHF"
 
 try: APPLYMETCORR
 except NameError:
@@ -300,6 +300,39 @@ process.load("RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi"
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
+###QUIELE### # run Puppi 
+###QUIELE### process.load('CommonTools/PileupAlgos/Puppi_cff')
+###QUIELE### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
+###QUIELE### process.load('CommonTools/PileupAlgos/softKiller_cfi')
+###QUIELE### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
+###QUIELE### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
+###QUIELE### makePuppies(process)
+###QUIELE### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
+###QUIELE### 
+###QUIELE### # PF cluster producer for HFCal ID
+###QUIELE### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+###QUIELE### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
+###QUIELE### 
+###QUIELE### # jurassic track isolation
+###QUIELE### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
+###QUIELE### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
+###QUIELE### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
+###QUIELE### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
+###QUIELE### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
+###QUIELE### 
+###QUIELE### # producer
+###QUIELE### process.electronfilter = cms.EDProducer("RecoElectronFilter")
+###QUIELE### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
+###QUIELE### process.electronfilter.pfCandsNoLep = "puppiNoLep"
+###QUIELE### 
+###QUIELE### #process.out = cms.OutputModule("PoolOutputModule",
+###QUIELE### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
+###QUIELE### #                                           'drop patElectrons_slimmedElectrons_*_*',
+###QUIELE### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
+###QUIELE### #    fileName = cms.untracked.string(options.outFilename)
+###QUIELE### #)
+###QUIELE###   
+###QUIELE### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
 
 #####process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
 ###### overwrite a default parameter: for miniAOD, the collection name is a slimmed one
@@ -471,39 +504,6 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 ##            debug = cms.bool(False),
 ##        ),
 ##)
-###QUIELE### # run Puppi 
-###QUIELE### process.load('CommonTools/PileupAlgos/Puppi_cff')
-###QUIELE### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
-###QUIELE### process.load('CommonTools/PileupAlgos/softKiller_cfi')
-###QUIELE### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
-###QUIELE### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
-###QUIELE### makePuppies(process)
-###QUIELE### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
-###QUIELE### 
-###QUIELE### # PF cluster producer for HFCal ID
-###QUIELE### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-###QUIELE### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
-###QUIELE### 
-###QUIELE### # jurassic track isolation
-###QUIELE### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
-###QUIELE### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
-###QUIELE### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
-###QUIELE### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
-###QUIELE### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
-###QUIELE### 
-###QUIELE### # producer
-###QUIELE### process.electronfilter = cms.EDProducer("RecoElectronFilter")
-###QUIELE### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
-###QUIELE### process.electronfilter.pfCandsNoLep = "puppiNoLep"
-###QUIELE### 
-###QUIELE### #process.out = cms.OutputModule("PoolOutputModule",
-###QUIELE### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
-###QUIELE### #                                           'drop patElectrons_slimmedElectrons_*_*',
-###QUIELE### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
-###QUIELE### #    fileName = cms.untracked.string(options.outFilename)
-###QUIELE### #)
-###QUIELE###   
-###QUIELE### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
 
 ##
 ## Taus
@@ -692,7 +692,7 @@ else:
 
 updateJetCollection(
    process,
-   jetSource = cms.InputTag('slimmedJets'),
+   jetSource = cms.InputTag('slimmedJetsPuppi'), #slimmedJets
    labelName = 'UpdatedJEC',
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None')
 )
@@ -816,7 +816,8 @@ else:
     )
     # patch to get a standalone MET significance collection
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
-                                                  srcMET=cms.InputTag("slimmedMETs","","TEST")
+                                                  #srcMET=cms.InputTag("slimmedMETs","","TEST")
+                                                  srcMET=cms.InputTag("slimmedMETsPuppi","","PAT")
                                                   )
     process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
@@ -856,7 +857,7 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  srcMETTag = cms.InputTag(PFMetName, "", "TEST")
+  srcMETTag = cms.InputTag(PFMetName, "", "PAT")
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -891,6 +892,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       IsMC = cms.bool(IsMC),
                       doCPVariables = cms.bool(doCPVariables),               
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                      secVtxCollection = cms.InputTag("slimmedSecondaryVertices"),
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
                       rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
@@ -923,9 +925,10 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       genLumiHeaderTag = cms.InputTag("generator")
                       )
 if USE_NOHFMET:
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsPuppi")
 else: 
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsPuppi", "", "PAT") # use TEST so that I get the corrected one
+    #process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
