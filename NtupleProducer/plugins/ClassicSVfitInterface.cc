@@ -654,13 +654,13 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     
     if (dau2->pt() < 30.)
       return false;
-    /*
+    
     if (userdatahelpers::getUserInt(l1,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       {cout<<"DECAYMODE1"<<endl; return false;}
     
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       {cout<<"DECAYMODE2"<<endl; return false;}
-
+  /*
     bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
 
