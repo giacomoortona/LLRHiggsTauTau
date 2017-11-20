@@ -379,6 +379,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float pxHad=0, pyHad=0, pzHad=0, EHad=0; // hadronic gen tau
     int status=99999, id=99999;
 
+    if (!genL) continue;
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();

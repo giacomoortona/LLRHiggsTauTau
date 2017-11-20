@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers and filters
 
 process = cms.Process("TEST")
+process.dump=cms.EDAnalyzer('EventContentAnalyzer')
 
 #set this cut in the cfg file
 try: APPLYELECORR
@@ -300,124 +301,52 @@ process.load("RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi"
 #**********************
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
-#**********************
-###QUIELE### # run Puppi 
-###QUIELE### process.load('CommonTools/PileupAlgos/Puppi_cff')
-###QUIELE### process.load('CommonTools/PileupAlgos/PhotonPuppi_cff')
-###QUIELE### process.load('CommonTools/PileupAlgos/softKiller_cfi')
-###QUIELE### from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton
-###QUIELE### from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
-###QUIELE### makePuppies(process)
-###QUIELE### process.puSequence = cms.Sequence(process.pfNoLepPUPPI * process.puppiNoLep)
-###QUIELE### 
-###QUIELE### # PF cluster producer for HFCal ID
-###QUIELE### process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-###QUIELE### process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff")
-###QUIELE### 
-###QUIELE### # jurassic track isolation
-###QUIELE### # https://indico.cern.ch/event/27568/contributions/1618615/attachments/499629/690192/080421.Isolation.Update.RecHits.pdf
-###QUIELE### process.load("RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi")
-###QUIELE### process.electronTrackIsolationLcone.electronProducer = cms.InputTag("ecalDrivenGsfElectrons")
-###QUIELE### process.electronTrackIsolationLcone.intRadiusBarrel = 0.04
-###QUIELE### process.electronTrackIsolationLcone.intRadiusEndcap = 0.04
-###QUIELE### 
-###QUIELE### # producer
-###QUIELE### process.electronfilter = cms.EDProducer("RecoElectronFilter")
-###QUIELE### process.load("PhaseTwoAnalysis.Electrons.RecoElectronFilter_cfi")
-###QUIELE### process.electronfilter.pfCandsNoLep = "puppiNoLep"
-###QUIELE### 
-###QUIELE### #process.out = cms.OutputModule("PoolOutputModule",
-###QUIELE### #    outputCommands = cms.untracked.vstring('keep *_*_*_*',
-###QUIELE### #                                           'drop patElectrons_slimmedElectrons_*_*',
-###QUIELE### #                                           'drop recoGsfElectrons_gedGsfElectrons_*_*'),
-###QUIELE### #    fileName = cms.untracked.string(options.outFilename)
-###QUIELE### #)
-###QUIELE###   
-###QUIELE### process.electrons = cms.Sequence(process.electronTrackIsolationLcone * process.particleFlowRecHitHGCSeq * process.puSequence * process.electronfilter)
 
-#####process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-###### overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-#####process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-#####
-#####from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-#####process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-#####
-###### Define which IDs we want to produce
-###### Each of these two example IDs contains all four standard 
-###### cut-based ID working points (only two WP of the PU20bx25 are actually used here).
-######my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
-######my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
-#####my_id_modules =[
-#####'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',    # both 25 and 50 ns cutbased ids produced
-#####'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V1_cff',
-#####'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',                 # recommended for both 50 and 25 ns
-#####'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff', # will not be produced for 50 ns, triggering still to come
-#####'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',    # 25 ns trig
-#####'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff',    # 50 ns trig
-#####'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
-#####'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
-#####
-#####] 
-######['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_'+nanosec+'ns_V1_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
-######Add them to the VID producer
-#####for idmod in my_id_modules:
-#####    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-#####    
-#####
-######process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-######   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
-######   cut = cms.string(ELECUT)
-######   )
-#####
-#####
-#####process.softElectrons = cms.EDProducer("EleFiller",
-#####   src    = cms.InputTag("slimmedElectrons"),
-#####   rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
-#####   vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
-#####   genCollection = cms.InputTag("prunedGenParticles"),
-#####   sampleType = cms.int32(LEPTON_SETUP),          
-#####   setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
-#####
-#####   #CUT BASED ELE ID
-#####   #electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-veto"),
-#####   #electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-tight"),
-#####   #electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-medium"),
-#####   #electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-loose"),
-#####   #electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
-#####   #electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-#####   #electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-#####   #electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
-#####   electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-veto"),
-#####   electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-tight"),
-#####   electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-medium"),
-#####   electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-loose"),
-#####
-#####   #MVA ELE ID (only for 25ns right now)
-#####   #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
-#####   #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
-#####   #mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"),
-#####   #mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"),
-#####   #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80"),
-#####   #eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90"),
-#####   #mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"),
-#####   #mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories"),
-#####   eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
-#####   eleTightIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
-#####   mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
-#####   mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
-#####   HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-#####
-#####
-######    cut = cms.string("userFloat('SIP')<100"),
-######   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
-#####   cut = cms.string(ELECUT),
-#####   flags = cms.PSet(
-#####        ID = cms.string("userInt('isBDT')"), # BDT MVA ID
-#####        isGood = cms.string("")
-#####        )
-#####   )
-#####
-######process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
+process.load("RecoEgamma.Phase2InterimID.phase2EgammaPAT_cff")
+#process.p = cms.Path( process.phase2Egamma )
+process.load("PhaseTwoAnalysis.Electrons."+"PatElectronFilter"+"_cfi")
+process.elefilter = cms.EDProducer('PatElectronFilter',
+        electrons     = cms.InputTag("phase2Electrons"),#"phase2EgammaTask"),
+        beamspot      = cms.InputTag("offlineBeamSpot"),
+        conversions   = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
+)
+process.softElectrons = cms.EDProducer("EleFiller",
+   src = cms.InputTag("elefilter"), #src    = cms.InputTag("phase2Electrons"), #("slimmedElectrons"),
+   rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
+   vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+   genCollection = cms.InputTag("prunedGenParticles"),
+   sampleType = cms.int32(LEPTON_SETUP),          
+   setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+
+
+   #CUT BASED ELE ID
+   electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-veto"),
+   electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-tight"),
+   electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-medium"),
+   electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-loose"),
+
+   #MVA ELE ID (only for 25ns right now)
+   eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
+   eleTightIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
+   mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
+   mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
+   HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+
+
+#    cut = cms.string("userFloat('SIP')<100"),
+#   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
+   cut = cms.string(ELECUT),
+   flags = cms.PSet(
+        ID = cms.string("userInt('isBDT')"), # BDT MVA ID
+        isGood = cms.string("")
+        )
+   )
+
+#process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
+process.electrons = cms.Sequence(process.phase2Egamma + process.elefilter + process.softElectrons)
+
+
+
 #####
 #####egmMod = 'egmGsfElectronIDs'
 #####mvaMod = 'electronMVAValueMapProducer'
@@ -658,13 +587,13 @@ eleString = "appendPhotons:electrons"
 if not APPLYFSR : 
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
-    eleString = "MediumElectronRelIso" #"softElectrons"
+    eleString = "softElectrons"
     tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-    #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
-    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
+    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+    #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
 )
 
 
@@ -685,20 +614,59 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 # apply new jet energy corrections
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
+from FWCore.ParameterSet.VarParsing import VarParsing
+voptions = VarParsing ('python')
+voptions.register('outFilename', 'FilteredEvents.root',
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "Output file name"
+                 )
+voptions.register('inputFormat', 'PAT',
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "format of the input files (PAT or RECO)"
+                 )
+voptions.register('updateJEC', '',
+                 VarParsing.multiplicity.list,
+                 VarParsing.varType.string,
+                 "Name of the SQLite file (with path and extension) used to update the jet collection to the latest JEC and the era of the new JEC"
+                )
+voptions.parseArguments()
+
 jecLevels = None
 if IsMC:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
+# Get new JEC from an SQLite file rather than a GT
+if True:
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
+                               #connect = cms.string('sqlite_file:/afs/cern.ch/user/g/gortona/public/PhaseIIFall17_V3_MC.db'),
+                               connect = cms.string('sqlite_file:PhaseIIFall17_V3_MC.db'),
+                               toGet =  cms.VPSet(
+            cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                     tag = cms.string("JetCorrectorParametersCollection_PhaseIIFall17_V3_MC_AK4PFPuppi"),
+                     #tag = cms.string("JetCorrectorParametersCollection_PhaseIll17_V3_MC_AK4PFPuppi"),
+                     label = cms.untracked.string("AK4PFPuppi"))
+            )
+                               )
+    process.es_prefer_jec = cms.ESPrefer("PoolDBESSource","jec")
+
+#process.load("PhaseTwoAnalysis.Jets.JetCorrection_cff.py")
+
 updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJetsPuppi'), #slimmedJets
    labelName = 'UpdatedJEC',
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None')
+   #jetCorrections = ('AK4PFPuppi', cms.vstring(jecLevels), 'None')
 )
 
 process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+
+#se faccio il jetfilter metterlo qui al posto del refselector
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
@@ -980,7 +948,7 @@ process.Candidates = cms.Sequence(
     #process.hltFilter         + 
     process.nEventsPassTrigger+
     process.muons             +
-    #process.electrons         +# process.cleanSoftElectrons +
+    process.electrons         +# process.cleanSoftElectrons +
     process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +

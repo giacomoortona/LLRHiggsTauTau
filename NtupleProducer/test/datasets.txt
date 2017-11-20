@@ -2,8 +2,14 @@
 # lines CONTAINING a '#' are interpreted as comments
 # blocks of datasets to be processed (toggeld on/off in the python script) are introduced by a ===
 
+=== PROVA ===
+/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_pilot/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
+
 === HGCALTDR ===
 /GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v3/MINIAODSIM
+/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2_ext1-v1/MINIAODSIM
+/VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2_ext1-v1/MINIAODSIM
+/VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 /VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
 /VBFToHHTo2B2Tau_SM_14TeV-madgraph-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 
@@ -22,12 +28,12 @@
 /DYToLL-M-50_3J_14TeV-madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 /DYToLL-M-50_3J_14TeV-madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 
-/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2_ext1-v1/MINIAODSIM
-/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
-/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
+#/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2_ext1-v1/MINIAODSIM
+#/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
+#/TTZJets_TuneCUETP8M1_14TeV_madgraphMLM-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 
-/TT_Mtt1500toInf_TuneCUETP8M1_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
-/TT_Mtt1500toInf_TuneCUETP8M1_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
+#/TT_Mtt1500toInf_TuneCUETP8M1_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v2/MINIAODSIM
+#/TT_Mtt1500toInf_TuneCUETP8M1_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM
 /TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-PU200_93X_upgrade2023_realistic_v2-v3/MINIAODSIM
 /TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM 
 #/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8_pilot/PhaseIITDRFall17MiniAOD-noPU_93X_upgrade2023_realistic_v2-v1/MINIAODSIM

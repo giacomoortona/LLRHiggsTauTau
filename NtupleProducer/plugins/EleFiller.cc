@@ -82,7 +82,7 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;//*******
-  edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
+  //edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
 
 
 
@@ -108,8 +108,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
-  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
-  HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap")))//****************
+  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap")))//,
+  //HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap")))//****************
 
  
   //bdt(0)
@@ -176,8 +176,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   edm::Handle<edm::ValueMap<int> > mvaCategories;
   iEvent.getByToken(mvaValuesMapToken_,mvaValues);
   iEvent.getByToken(mvaCategoriesMapToken_,mvaCategories);
-  edm::Handle<edm::ValueMap<float> > HZZmvaValues;
-  iEvent.getByToken(HZZmvaValuesMapToken_,HZZmvaValues);
+  //edm::Handle<edm::ValueMap<float> > HZZmvaValues;
+  //iEvent.getByToken(HZZmvaValuesMapToken_,HZZmvaValues);
 
 //**********************
 
@@ -203,8 +203,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     //float fSCeta = fabs(l.eta()); 
     float fSCeta = l.superCluster()->eta();
-
-    float combRelIsoPF = (l.pfIsolationVariables().sumChargedHadronPt + max(l.pfIsolationVariables().sumNeutralHadronEt +l.pfIsolationVariables().sumPhotonEt - 0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
+float combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutralHadronIso() + l.puppiNoLeptonsPhotonIso()) / l.pt(); 
+    //float combRelIsoPF = (l.pfIsolationVariables().sumChargedHadronPt + max(l.pfIsolationVariables().sumNeutralHadronEt +l.pfIsolationVariables().sumPhotonEt - 0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
 //LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
 
     //--- SIP, dxy, dz
@@ -262,22 +262,53 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isEB", int(l.isEB()));
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     int eleCUT=0;
-    if((*veto_id_decisions)[ elPtr ])eleCUT |= 1 << 0;
+    /*if((*veto_id_decisions)[ elPtr ])eleCUT |= 1 << 0;
     if((*loose_id_decisions)[ elPtr ])eleCUT |= 1 << 1;
     if((*medium_id_decisions)[ elPtr ])eleCUT |= 1 << 2;
-    if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;
+    if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;*/
+        float eleMVAvalue=0;
+    if (l.hasUserFloat("mvaValue")) eleMVAvalue = l.userFloat("mvaValue");
+    else eleMVAvalue = (*mvaValues)[ele];
+
+    bool isEleID80 = false;//l.hasUserInt("HGCALMedium") ;
+    bool isEleID90  = false;//l.hasUserInt("HGCALTight");
+
+  if(l.isEB()){
+      if (l.pt()<20) {
+        isEleID90 = (eleMVAvalue>0.203);
+        isEleID80 = (eleMVAvalue>0.869);
+      }
+      else 
+        isEleID90 = (eleMVAvalue>0.452);
+  }
+  else{
+      if (l.pt()<20) {
+        isEleID90 = (eleMVAvalue>-0.33);
+        isEleID80 = (eleMVAvalue>0.67);
+      }
+      else 
+        isEleID90 = (eleMVAvalue>0.73);
+  }
+  bool isBDT = (isEleID80 || isEleID90);
+  l.addUserInt("isBDT",(isBDT ? 1 : 0));
+
+
+    if(true)eleCUT |= 1 << 0;
+    if(l.hasUserInt("HGCALLoose"))eleCUT |= 1 << 1;
+    if(isEleID80)eleCUT |= 1 << 2;
+    if(isEleID90)eleCUT |= 1 << 3;
     l.addUserInt("isCUT",eleCUT);
 
-    int isEleID80 = (*medium_id_decisions2)[ele];
-    int  isEleID90  = (*tight_id_decisions2)[ele];
+    //int isEleID80 = (*medium_id_decisions2)[ele];
+    //int  isEleID90  = (*tight_id_decisions2)[ele];
     //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
-    float eleMVAvalue=(*mvaValues)[ele];
-    l.addUserInt("isEleID80",isEleID80);
-    l.addUserInt("isEleID90",isEleID90);
+    l.addUserInt("isEleID80",(int)isEleID80);
+    l.addUserInt("isEleID90",(int)isEleID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
-    float HZZeleMVAvalue=(*HZZmvaValues)[ele];
+    float HZZeleMVAvalue=0;//(*HZZmvaValues)[ele];
     l.addUserFloat("HZZeleMVAvalue",HZZeleMVAvalue);
+    /*
     bool isBDT = false;
     float afSCeta = fabs(fSCeta);
     if(afSCeta < 2.4){
@@ -292,7 +323,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
      if (l.pt()>10) isBDT = (eleMVAvalue>0.358969);
      else isBDT = (eleMVAvalue>-0.67099);   
     }
-    l.addUserInt("isBDT",(isBDT ? 1 : 0));
+    */
 
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
