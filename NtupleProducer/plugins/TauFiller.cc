@@ -341,7 +341,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso); 
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso); 
     l.addUserFloat("PFPhotonIso",PFPhotonIso); 
-    l.addUserFloat("combRelIsoPF",combRelIsoPF); 
+    //l.addUserFloat("combRelIsoPF",combRelIsoPF); 
+    l.addUserFloat("combRelIsoPF",PFChargedHadIso); 
     l.addUserInt("numChargedParticlesSignalCone",numChargedParticlesSignalCone);
     l.addUserInt("numNeutralHadronsSignalCone",numNeutralHadronsSignalCone);
     l.addUserInt("numPhotonsSignalCone",numPhotonsSignalCone);
@@ -379,7 +380,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float pxHad=0, pyHad=0, pzHad=0, EHad=0; // hadronic gen tau
     int status=99999, id=99999;
 
+    //Fix until tau recipe
     if (!genL) continue;
+    if (abs(genL->pdgId()) != 15) continue;
+    //End fix
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
