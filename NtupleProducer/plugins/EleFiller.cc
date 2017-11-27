@@ -203,7 +203,6 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     //float fSCeta = fabs(l.eta()); 
     float fSCeta = l.superCluster()->eta();
-float combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutralHadronIso() + l.puppiNoLeptonsPhotonIso()) / l.pt(); 
     //float combRelIsoPF = (l.pfIsolationVariables().sumChargedHadronPt + max(l.pfIsolationVariables().sumNeutralHadronEt +l.pfIsolationVariables().sumPhotonEt - 0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
 //LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
 
@@ -240,7 +239,6 @@ float combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutr
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
     l.addUserFloat("PFPhotonIso",PFPhotonIso);
-    l.addUserFloat("combRelIsoPF",combRelIsoPF);
     l.addUserFloat("rho",rho);
     l.addUserFloat("SIP",SIP);
     l.addUserFloat("dxy",dxy);
@@ -266,7 +264,7 @@ float combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutr
     if((*loose_id_decisions)[ elPtr ])eleCUT |= 1 << 1;
     if((*medium_id_decisions)[ elPtr ])eleCUT |= 1 << 2;
     if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;*/
-        float eleMVAvalue=0;
+    float eleMVAvalue=0;
     if (l.hasUserFloat("mvaValue")) eleMVAvalue = l.userFloat("mvaValue");
     else eleMVAvalue = (*mvaValues)[ele];
 
@@ -274,27 +272,43 @@ float combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutr
     bool isEleID90  = false;//l.hasUserInt("HGCALTight");
 
   if(l.isEB()){
-      if (l.pt()<20) {
-        isEleID90 = (eleMVAvalue>0.203);
-        isEleID80 = (eleMVAvalue>0.869);
+      if (l.pt() < 20.) {
+        isEleID80 = (eleMVAvalue > -0.661);
+        isEleID90 = (eleMVAvalue > 0.986);
       }
-      else 
-        isEleID90 = (eleMVAvalue>0.452);
-  }
-  else{
-      if (l.pt()<20) {
-        isEleID90 = (eleMVAvalue>-0.33);
-        isEleID80 = (eleMVAvalue>0.67);
+      else {
+        isEleID80 = (eleMVAvalue > -0.797);
+        isEleID90 = (eleMVAvalue > 0.988);
       }
-      else 
-        isEleID90 = (eleMVAvalue>0.73);
-  }
+    } else {
+      if (not (l.userFloat("hgcElectronID:ecEnergy") > 0)) continue;
+      if (not (l.userFloat("hgcElectronID:sigmaUU") > 0)) continue;
+      if (not (l.fbrem() > -1)) continue;
+      if (not (l.userFloat("hgcElectronID:measuredDepth") < 40)) continue;
+      if (not (l.userFloat("hgcElectronID:nLayers") > 20)) continue;
+      if (l.pt() < 20.) {
+        isEleID80 = (eleMVAvalue > -0.320);
+        isEleID90 = (eleMVAvalue > 0.969);
+      } else {
+        isEleID80 = (eleMVAvalue > -0.919);
+        isEleID90 = (eleMVAvalue > 0.983);
+      }
+    }  
   bool isBDT = (isEleID80 || isEleID90);
   l.addUserInt("isBDT",(isBDT ? 1 : 0));
+  float combRelIsoPF = -990;
+  if(isBDT){ 
+  if( l.isEB() )
+      combRelIsoPF = (l.puppiNoLeptonsChargedHadronIso() + l.puppiNoLeptonsNeutralHadronIso() + l.puppiNoLeptonsPhotonIso()) / l.pt();
+  else
+      combRelIsoPF = (l.userFloat("hgcElectronID:caloIsoRing1") + l.userFloat("hgcElectronID:caloIsoRing2") + l.userFloat("hgcElectronID:caloIsoRing3") + l.userFloat("hgcElectronID:caloIsoRing4")) / l.energy();
+  }
+  l.addUserFloat("combRelIsoPF",combRelIsoPF);
 
 
     if(true)eleCUT |= 1 << 0;
-    if(l.hasUserInt("HGCALLoose"))eleCUT |= 1 << 1;
+    //if(l.hasUserInt("HGCALLoose"))eleCUT |= 1 << 1;
+    if(isEleID80)eleCUT |= 1 << 1;
     if(isEleID80)eleCUT |= 1 << 2;
     if(isEleID90)eleCUT |= 1 << 3;
     l.addUserInt("isCUT",eleCUT);

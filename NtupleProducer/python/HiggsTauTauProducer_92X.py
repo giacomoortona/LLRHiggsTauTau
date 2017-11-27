@@ -3,6 +3,11 @@ execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers an
 
 process = cms.Process("TEST")
 process.dump=cms.EDAnalyzer('EventContentAnalyzer')
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#    ignoreTotal = cms.untracked.int32(1),
+#    #useJobReport = cms.untracked.bool(True)
+#    oncePerEventMode=cms.untracked.bool(True)
+#)
 
 #set this cut in the cfg file
 try: APPLYELECORR
@@ -42,6 +47,20 @@ except NameError:
 try: HLTProcessName
 except NameError:
     HLTProcessName='HLT'
+
+try: PU200
+except NameError:
+  PU200=False
+pu=200
+if not PU200 : pu=0
+
+try: RECOMPUTEMET
+except NameError:
+  RECOMPUTEMET=False
+
+try: ADDELE
+except NameError:
+  ADDELE=True
 
 USECLASSICSVFIT = True
 ### ----------------------------------------------------------------------
@@ -175,7 +194,7 @@ process.load("PhaseTwoAnalysis.Muons."+"PatMuonFilter"+"_cfi")
 #process.p = cms.Path(process.muonfilter)
 
 process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
-    muons = cms.InputTag("muonfilter"),
+    muons = cms.InputTag("muonfilter"), #muonfilter
     vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
     muonPtCut = cms.double(20),
     selectClones = cms.bool(False),
@@ -187,7 +206,7 @@ process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
 )
 
 process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
-    input = cms.InputTag("muonfilter"),
+    input = cms.InputTag("muonfilter"), #muonfilter
     toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
     toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
 )
@@ -199,6 +218,7 @@ process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 
 # process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
 process.noBadGlobalMuons = cms.Sequence(process.muonfilter + process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
+#process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
 #process.softLeptons = cms.EDProducer("CandViewMerger",
 #    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
@@ -246,7 +266,7 @@ process.softMuons = cms.EDProducer("MuFiller",
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 #    cut = cms.string("userFloat('SIP')<100"),
 #    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
-    cut = cms.string(""),
+    cut = cms.string("userInt('HGCALLoose') == 1"),
     flags = cms.PSet(
         ID = cms.string("userFloat('isPFMuon')" ), # PF ID
         isGood = cms.string(MUCUT)
@@ -304,14 +324,16 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 
 process.load("RecoEgamma.Phase2InterimID.phase2EgammaPAT_cff")
 #process.p = cms.Path( process.phase2Egamma )
-process.load("PhaseTwoAnalysis.Electrons."+"PatElectronFilter"+"_cfi")
-process.elefilter = cms.EDProducer('PatElectronFilter',
-        electrons     = cms.InputTag("phase2Electrons"),#"phase2EgammaTask"),
-        beamspot      = cms.InputTag("offlineBeamSpot"),
-        conversions   = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
-)
+
+#Remove the patFilter while waiting for Markus code
+#process.load("PhaseTwoAnalysis.Electrons."+"PatElectronFilter"+"_cfi")
+#process.elefilter = cms.EDProducer('PatElectronFilter',
+#        electrons     = cms.InputTag("phase2Electrons"),#"phase2EgammaTask"),
+#        beamspot      = cms.InputTag("offlineBeamSpot"),
+#        conversions   = cms.InputTag("reducedEgamma", "reducedConversions", "PAT"),
+#)
 process.softElectrons = cms.EDProducer("EleFiller",
-   src = cms.InputTag("elefilter"), #src    = cms.InputTag("phase2Electrons"), #("slimmedElectrons"),
+   src = cms.InputTag("phase2Electrons"), #src    = cms.InputTag("elefilter"), #("slimmedElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
@@ -343,7 +365,8 @@ process.softElectrons = cms.EDProducer("EleFiller",
    )
 
 #process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
-process.electrons = cms.Sequence(process.phase2Egamma + process.elefilter + process.softElectrons)
+#process.electrons = cms.Sequence(process.phase2Egamma + process.elefilter + process.softElectrons)
+process.electrons = cms.Sequence(process.phase2Egamma + process.softElectrons)
 
 
 
@@ -590,11 +613,19 @@ if not APPLYFSR :
     eleString = "softElectrons"
     tauString = "softTaus"
 #Leptons
-process.softLeptons = cms.EDProducer("CandViewMerger",
-    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
-    #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
-)
+if ADDELE:
+    process.softLeptons = cms.EDProducer("CandViewMerger",
+        #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
+        src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+        #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
+    )
+
+else :
+    process.softLeptons = cms.EDProducer("CandViewMerger",
+        #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
+        #src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+        src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(tauString))
+    )
 
 
 #
@@ -614,24 +645,24 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 # apply new jet energy corrections
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
-from FWCore.ParameterSet.VarParsing import VarParsing
-voptions = VarParsing ('python')
-voptions.register('outFilename', 'FilteredEvents.root',
-                 VarParsing.multiplicity.singleton,
-                 VarParsing.varType.string,
-                 "Output file name"
-                 )
-voptions.register('inputFormat', 'PAT',
-                 VarParsing.multiplicity.singleton,
-                 VarParsing.varType.string,
-                 "format of the input files (PAT or RECO)"
-                 )
-voptions.register('updateJEC', '',
-                 VarParsing.multiplicity.list,
-                 VarParsing.varType.string,
-                 "Name of the SQLite file (with path and extension) used to update the jet collection to the latest JEC and the era of the new JEC"
-                )
-voptions.parseArguments()
+#from FWCore.ParameterSet.VarParsing import VarParsing
+#voptions = VarParsing ('python')
+#voptions.register('outFilename', 'FilteredEvents.root',
+#                 VarParsing.multiplicity.singleton,
+#                 VarParsing.varType.string,
+#                 "Output file name"
+#                 )
+#voptions.register('inputFormat', 'PAT',
+#                 VarParsing.multiplicity.singleton,
+#                 VarParsing.varType.string,
+#                 "format of the input files (PAT or RECO)"
+#                 )
+#voptions.register('updateJEC', '',
+#                 VarParsing.multiplicity.list,
+#                 VarParsing.varType.string,
+#                 "Name of the SQLite file (with path and extension) used to update the jet collection to the latest JEC and the era of the new JEC"
+#                )
+#voptions.parseArguments()
 
 jecLevels = None
 if IsMC:
@@ -667,10 +698,18 @@ updateJetCollection(
 process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 #se faccio il jetfilter metterlo qui al posto del refselector
+elecstring = "softElectrons"
+if not ADDELE : elecstring = "slimmedElectrons"
+process.jetfilter = cms.EDProducer('PatJetFilter',
+        pileup        = cms.uint32(pu),
+        electrons     = cms.InputTag(elecstring), #cms.InputTag("slimmedElectrons"),
+        muons         = cms.InputTag("softMuons"),
+        jets          = cms.InputTag("updatedPatJetsUpdatedJEC"),
+)
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
-                            src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            src = cms.InputTag("jetfilter"),
                             cut = cms.string(JETCUT)
 )
 
@@ -699,10 +738,10 @@ if COMPUTEQGVAR:
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-    process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
+    process.jetSequence = cms.Sequence(process.jetfilter + process.jets * process.QGTagger)
 
 else:
-    process.jetSequence = cms.Sequence(process.jets)
+    process.jetSequence = cms.Sequence(process.jetfilter + process.jets)
 
 
 
@@ -779,16 +818,17 @@ else:
     print "Using event pfMET (same MET for all pairs)"
 
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(
-      process,
-      isData= (not IsMC),
-    )
-    # patch to get a standalone MET significance collection
+    if RECOMPUTEMET :
+      runMetCorAndUncFromMiniAOD(
+        process,
+        isData= (not IsMC),
+      )
+    #patch to get a standalone MET significance collection
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
                                                   #srcMET=cms.InputTag("slimmedMETs","","TEST")
                                                   srcMET=cms.InputTag("slimmedMETsPuppi","","PAT")
                                                   )
-    process.METSequence += process.fullPatMetSequence
+    if RECOMPUTEMET : process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
 
 # ## always compute met significance
@@ -942,22 +982,37 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
-process.Candidates = cms.Sequence(
-    # process.printTree         + # just for debug, print MC particles
-    process.nEventsTotal      +
-    #process.hltFilter         + 
-    process.nEventsPassTrigger+
-    process.muons             +
-    process.electrons         +# process.cleanSoftElectrons +
-    process.taus              + 
-    process.fsrSequence       +
-    process.softLeptons       + process.barellCand +
-    #process.jets              +
-    process.jecSequence + process.jetSequence + #process.jets + 
-    process.METSequence       +
-    process.geninfo           +
-    process.SVFit             
-    )
+if ADDELE :
+  process.Candidates = cms.Sequence(
+      # process.printTree         + # just for debug, print MC particles
+      process.nEventsTotal      +
+      #process.hltFilter         + 
+      process.nEventsPassTrigger+
+      process.muons             +
+      process.electrons         +# process.cleanSoftElectrons +
+      process.taus              + 
+      process.fsrSequence       +
+      process.softLeptons       + process.barellCand +
+      #process.jets              +
+      process.jecSequence + process.jetSequence + #process.jets + 
+      process.METSequence       +
+      process.geninfo           +
+      process.SVFit             
+      )
+else :
+  process.Candidates = cms.Sequence(
+      process.nEventsTotal      +
+      process.nEventsPassTrigger+
+      process.muons             +
+      process.taus              + 
+      process.fsrSequence       +
+      process.softLeptons       + process.barellCand +
+      process.jecSequence + process.jetSequence + #process.jets + 
+      process.METSequence       +
+      process.geninfo           +
+      process.SVFit             
+      )
+
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)
 

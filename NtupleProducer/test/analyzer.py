@@ -6,6 +6,7 @@
 import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
+PU200=True
 #samples list (it could be moved to a cfg file for better reading
 #samples = [
 #]
@@ -13,6 +14,7 @@ PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 APPLYMUCORR=False
 APPLYELECORR=False
 APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
+ADDELE=True #should still remove/add by hand in the final path
 #Cuts on the Objects (add more cuts with &&)
 #MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && abs(eta)<2.4 && pt>8"
 #ELECUT="abs(eta)<2.5 && gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && pt>10"
@@ -24,7 +26,7 @@ APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil correcti
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
+BUILDONLYOS=True #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
@@ -39,8 +41,9 @@ print "HLTProcessName: ",HLTProcessName
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
-MUCUT="isLooseMuon && pt>5 && userInt('HGCALMedium') == 1"
-ELECUT="pt>7 && userInt('HGCALLoose') == 1" #"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
+MUCUT="pt>5 && eta>-2.8 && eta<2.8"
+#MUCUTFILLER="userInt('isLoose') == 1"
+ELECUT="pt>7 && userInt('isBDT') == 1 && eta<3 && eta>-3" #"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>20"
 LLCUT="mass>0"
@@ -72,19 +75,13 @@ else :
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/mc/PhaseIITDRFall17MiniAOD/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/MINIAODSIM/PU200_93X_upgrade2023_realistic_v2-v3/150000/0055CBF9-2AC2-E711-BECC-48FD8EE73AD9.root'
+    #'/store/mc/PhaseIITDRFall17MiniAOD/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/MINIAODSIM/PU200_93X_upgrade2023_realistic_v2-v3/150000/0055CBF9-2AC2-E711-BECC-48FD8EE73AD9.root'
+    '/store/mc/PhaseIITDRFall17MiniAOD/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/MINIAODSIM/PU200_93X_upgrade2023_realistic_v2-v3/00000/D88E3367-58C1-E711-BA11-0CC47A5450FA.root'
+
     # '/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/B8A61C30-5E12-E711-87BB-FA163E939724.root',
-    #'/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/0264645E-5E12-E711-889B-E41D2D08DD10.root',
-    # '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/60000/4CBBCFDF-F8C6-E611-A5C2-6CC2173BBD40.root',
-    # '/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_backup_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/00000/AC8AA010-88BB-E611-9974-FA163E1B885B.root',
-    #'/store/mc/RunIISummer16MiniAODv2/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/80000/80EA9B8A-A1C1-E611-A107-20CF3027A61A.root',
-    # '/store/data/Run2016B/SingleMuon/MINIAOD/23Sep2016-v3/120000/E6D5D5EB-8299-E611-83D1-FA163EB4F61D.root',
-    #'/store/data/Run2016C/SingleMuon/MINIAOD/23Sep2016-v1/80000/F8F49A79-BE89-E611-A029-008CFA1974E4.root'
-    #'/store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/273/150/00000/34A57FB8-D819-E611-B0A4-02163E0144EE.root', #80X data
-    # '/store/mc/RunIISpring16MiniAODv1/GluGluToBulkGravitonToHHTo2B2Tau_M-400_narrow_13TeV-madgraph/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3_ext1-v1/30000/06E22BEA-9F10-E611-9862-1CB72C0A3A5D.root', #80X MC
-    # '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/12184969-3DB8-E511-879B-001E67504A65.root', #76X MC
     ),
-    secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v2/30000/EE9F06A8-D2BB-E711-84DF-0090FAA57A60.root')
+    #secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v2/30000/EE9F06A8-D2BB-E711-84DF-0090FAA57A60.root')
+    #secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v1/150000/D2C86E2C-28B8-E711-B704-B4E10FA3213D.root')
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)
