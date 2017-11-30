@@ -8,10 +8,10 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-PU200=False
+PU200=True
 #PROCESS = ["PROVA"]
 PROCESS = ["HGCALTDR"]
-tag = "HGCAL_TDR_signal_2017_11_26"
+tag = "HGCAL_TDR_signal_2017_11_30i_cov900"
 datasetsFile = "datasets.txt"
 addEle = True
 isMC = True

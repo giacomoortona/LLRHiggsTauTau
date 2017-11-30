@@ -381,8 +381,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int status=99999, id=99999;
 
     //Fix until tau recipe
-    if (!genL) continue;
-    if (abs(genL->pdgId()) != 15) continue;
+    //if (!genL) continue;
+    //if (abs(genL->pdgId()) != 15) continue;
     //End fix
     if(genL){
       px =genL->p4().Px();

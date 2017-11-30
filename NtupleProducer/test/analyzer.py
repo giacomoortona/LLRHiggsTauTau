@@ -39,12 +39,14 @@ if not IsMC:
 print "HLTProcessName: ",HLTProcessName
 
 #relaxed sets for testing purposes
-TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
+#TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
+TAUDISCRIMINATOR="chargedIsoPtSum"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
 MUCUT="pt>5 && eta>-2.8 && eta<2.8"
 #MUCUTFILLER="userInt('isLoose') == 1"
 ELECUT="pt>7 && userInt('isBDT') == 1 && eta<3 && eta>-3" #"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+#TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+TAUCUT="tauID('chargedIsoPtSum') < 2.5 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>20"
 LLCUT="mass>0"
 BCUT="pt>5"
@@ -81,7 +83,7 @@ process.source = cms.Source("PoolSource",
     # '/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/B8A61C30-5E12-E711-87BB-FA163E939724.root',
     ),
     #secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/GluGluToHHTo2B2Tau_node_SM_14TeV-madgraph/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v2/30000/EE9F06A8-D2BB-E711-84DF-0090FAA57A60.root')
-    #secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v1/150000/D2C86E2C-28B8-E711-B704-B4E10FA3213D.root')
+    secondaryFileNames = cms.untracked.vstring('/store/mc/PhaseIITDRFall17DR/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-RECO/PU200_93X_upgrade2023_realistic_v2-v1/150000/D2C86E2C-28B8-E711-B704-B4E10FA3213D.root')
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)

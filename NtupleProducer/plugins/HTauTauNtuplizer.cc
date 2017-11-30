@@ -2401,14 +2401,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       footprintCorrection = userdatahelpers::getUserFloat (cand, "footprintCorrection");
       neutralIsoPtSumWeight = userdatahelpers::getUserFloat (cand, "neutralIsoPtSumWeight");
       photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
-
-      byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
       byIsolationMVA3oldDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwoLTraw");
       byIsolationMVA3oldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwLTraw");
       byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
       byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
+      //if (chargedIsoPtSum != 0) byCombinedIsolationDeltaBetaCorrRaw3Hits = 1.0/chargedIsoPtSum ;
+      //else byCombinedIsolationDeltaBetaCorrRaw3Hits = 10000.;
+      byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
+
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
       numChargedParticlesSignalCone = userdatahelpers::getUserInt (cand, "numChargedParticlesSignalCone");

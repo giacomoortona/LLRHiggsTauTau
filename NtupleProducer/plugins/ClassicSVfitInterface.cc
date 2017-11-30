@@ -170,10 +170,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
      iEvent.getByToken (theSigTag, significanceHandle);
      iEvent.getByToken (theCovTag, covHandle);
      
-     covMET[0][0] = (*covHandle)(0,0);
-     covMET[1][0] = (*covHandle)(1,0);
+     covMET[0][0] = 900;//(*covHandle)(0,0);
+     covMET[1][0] = 0;//(*covHandle)(1,0);
      covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
-     covMET[1][1] = (*covHandle)(1,1);
+     covMET[1][1] = 900; //(*covHandle)(1,1);
 
      significance = (float) (*significanceHandle);
      
